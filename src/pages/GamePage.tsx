@@ -5,10 +5,11 @@ import { useGameLogic } from "../hooks/useGameLogic";
 
 interface GamePageProps {
     onFinish: (moves: number) => void;
+    emojis: string[];
 }
 
-export default function GamePage({ onFinish }: GamePageProps) {
-    const { cards, flipped, solved, moves, handleClick, isWon } = useGameLogic();
+export default function GamePage({ onFinish, emojis }: GamePageProps) {
+    const { cards, flipped, solved, moves, handleClick, isWon } = useGameLogic(emojis);
 
     useEffect(() => {
         if (isWon) {

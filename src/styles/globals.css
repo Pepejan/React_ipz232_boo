@@ -27,6 +27,7 @@ body {
     transition: 0.5s;
     color: white;
 }
+
 .btn:hover {
     background-color: #59e640;
 }
@@ -59,4 +60,10 @@ body {
 .btn-group {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.difficulty-selector {
+    margin: 2rem 0;
 }

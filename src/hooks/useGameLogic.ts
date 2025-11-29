@@ -5,8 +5,7 @@ interface Card {
     emoji: string;
 }
 
-export function useGameLogic() {
-    const emojis = ["🐶", "🐱", "🐭", "🐹"];
+export function useGameLogic(emojis: string[]) {
     const [cards, setCards] = useState<Card[]>([]);
     const [flipped, setFlipped] = useState<number[]>([]);
     const [solved, setSolved] = useState<number[]>([]);
@@ -17,7 +16,10 @@ export function useGameLogic() {
             .sort(() => Math.random() - 0.5)
             .map((emoji, index) => ({ id: index, emoji }));
         setCards(shuffled);
-    }, []);
+        setFlipped([]);
+        setSolved([]);
+        setMoves(0);
+    }, [emojis]);
 
     const handleClick = (id: number) => {
         if (flipped.length === 2 || flipped.includes(id) || solved.includes(id)) {
