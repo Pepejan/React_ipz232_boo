@@ -25,8 +25,8 @@ body {
     font-size: 1rem;
     cursor: pointer;
     transition: 0.5s;
+    color: white;
 }
-
 .btn:hover {
     background-color: #59e640;
 }
@@ -53,4 +53,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
 }

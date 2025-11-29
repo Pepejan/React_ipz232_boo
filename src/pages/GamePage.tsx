@@ -1,18 +1,31 @@
+import { useEffect } from "react";
 import Header from "../components/Header";
 import Grid from "../components/Grid";
-import Button from "../components/Button";
+import { useGameLogic } from "../hooks/useGameLogic";
 
 interface GamePageProps {
-    onFinish: () => void;
+    onFinish: (moves: number) => void;
 }
 
 export default function GamePage({ onFinish }: GamePageProps) {
+    const { cards, flipped, solved, moves, handleClick, isWon } = useGameLogic();
+
+    useEffect(() => {
+        if (isWon) {
+            setTimeout(() => onFinish(moves), 500);
+        }
+    }, [isWon, moves, onFinish]);
+
     return (
         <div className="page">
             <Header title="🎮 Game Time!" />
-            <p className="text">Moves: 0</p>
-            <Grid />
-            <Button text="Finish Game" onClick={onFinish} />
+            <p className="text">Moves: {moves}</p>
+            <Grid
+                cards={cards}
+                flipped={flipped}
+                solved={solved}
+                onCardClick={handleClick}
+            />
         </div>
     );
 }
