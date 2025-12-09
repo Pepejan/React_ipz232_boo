@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface ModalProps {
     isOpen: boolean;
@@ -21,11 +22,13 @@ export default function Modal({ isOpen, onClose, children }: ModalProps) {
 
     if (!isOpen) return null;
 
-    return (
+    const modalContent = (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 {children}
             </div>
         </div>
     );
+
+    return createPortal(modalContent, document.body);
 }

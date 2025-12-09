@@ -1,55 +1,71 @@
-import { useState } from "react";
-import type {GameSettings} from "../contexts/GameSettingsContext";
-import {validateSettings, type ValidationErrors} from "../utils/validation";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import type { GameSettings } from "../contexts/GameSettingsContext";
 
 interface SettingsFormProps {
     onSubmit: (settings: GameSettings) => void;
     initialSettings: GameSettings;
 }
 
+const schema: yup.ObjectSchema<GameSettings> = yup.object({
+    difficulty: yup
+        .mixed<"easy" | "medium" | "hard">()
+        .oneOf(["easy", "medium", "hard"])
+        .required("Difficulty is required"),
+    pairsCount: yup
+        .number()
+        .required("Number of pairs is required")
+        .min(3, "Minimum 3 pairs")
+        .max(12, "Maximum 12 pairs")
+        .integer("Must be a whole number"),
+    flipSpeed: yup
+        .number()
+        .required("Flip speed is required")
+        .min(500, "Minimum 500ms")
+        .max(3000, "Maximum 3000ms"),
+    theme: yup
+        .mixed<"animals" | "food" | "nature">()
+        .oneOf(["animals", "food", "nature"])
+        .required("Theme is required")
+}).required();
+
 export default function SettingsForm({ onSubmit, initialSettings }: SettingsFormProps) {
-    const [settings, setSettings] = useState<GameSettings>(initialSettings);
-    const [errors, setErrors] = useState<ValidationErrors>({});
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors }
+    } = useForm<GameSettings>({
+        resolver: yupResolver(schema),
+        defaultValues: initialSettings
+    });
 
-    const handleChange = (field: keyof GameSettings, value: GameSettings[typeof field]) => {
-        setSettings(prev => ({ ...prev, [field]: value }));
-        setErrors((prev: ValidationErrors) => ({ ...prev, [field]: undefined }));
-    };
-
-    const handleSubmit = () => {
-        const validationErrors = validateSettings(settings);
-
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            return;
-        }
-
-        onSubmit(settings);
-    };
+    const flipSpeed = watch("flipSpeed");
 
     return (
-        <div className="settings-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="settings-form">
             <h3 className="form-title">⚙️ Game Settings</h3>
 
             <div className="form-group">
                 <label>Number of Pairs (3-12):</label>
                 <input
                     type="number"
-                    value={settings.pairsCount}
-                    onChange={(e) => handleChange("pairsCount", parseInt(e.target.value))}
+                    {...register("pairsCount", { valueAsNumber: true })}
                     className="form-input"
                     min="3"
                     max="12"
                 />
-                {errors.pairsCount && <span className="error">{errors.pairsCount}</span>}
+                {errors.pairsCount && (
+                    <span className="error">{errors.pairsCount.message}</span>
+                )}
             </div>
 
             <div className="form-group">
-                <label>Flip Speed: {settings.flipSpeed}ms</label>
+                <label>Flip Speed: {flipSpeed}ms</label>
                 <input
                     type="range"
-                    value={settings.flipSpeed}
-                    onChange={(e) => handleChange("flipSpeed", parseInt(e.target.value))}
+                    {...register("flipSpeed", { valueAsNumber: true })}
                     className="form-range"
                     min="500"
                     max="3000"
@@ -59,25 +75,26 @@ export default function SettingsForm({ onSubmit, initialSettings }: SettingsForm
                     <span>Fast (500ms)</span>
                     <span>Slow (3000ms)</span>
                 </div>
-                {errors.flipSpeed && <span className="error">{errors.flipSpeed}</span>}
+                {errors.flipSpeed && (
+                    <span className="error">{errors.flipSpeed.message}</span>
+                )}
             </div>
 
             <div className="form-group">
                 <label>Theme:</label>
-                <select
-                    value={settings.theme}
-                    onChange={(e) => handleChange("theme", e.target.value as GameSettings["theme"])}
-                    className="form-select"
-                >
+                <select {...register("theme")} className="form-select">
                     <option value="animals">Animals 🐾</option>
                     <option value="food">Food 🍎</option>
                     <option value="nature">Nature 🌿</option>
                 </select>
+                {errors.theme && (
+                    <span className="error">{errors.theme.message}</span>
+                )}
             </div>
 
-            <button onClick={handleSubmit} className="btn btn-submit">
+            <button type="submit" className="btn btn-submit">
                 Save & Start Game
             </button>
-        </div>
+        </form>
     );
 }
