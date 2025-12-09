@@ -33,24 +33,27 @@ export function useGameLogic(emojis: string[], flipSpeed: number = 1000) {
         }
     }, [cards, solved]);
 
-    const handleClick = (id: number) => {
-        if (flipped.length === 2 || flipped.includes(id) || solved.includes(id)) {
-            return;
-        }
-
-        const newFlipped = [...flipped, id];
-        setFlipped(newFlipped);
-
-        if (newFlipped.length === 2) {
-            setMoves(moves + 1);
-            const [first, second] = newFlipped;
-            if (cards[first].emoji === cards[second].emoji) {
-                setSolved([...solved, first, second]);
-                setFlipped([]);
-            } else {
-                setTimeout(() => setFlipped([]), flipSpeed);
+    useEffect(() => {
+        if (flipped.length === 2) {
+            const [first, second] = flipped;
+            if (cards[first]?.emoji !== cards[second]?.emoji) {
+                const timeout = setTimeout(() => setFlipped([]), flipSpeed);
+                return () => clearTimeout(timeout);
             }
         }
+    }, [flipped, cards, flipSpeed]);
+
+    const flipCard = (id: number) => {
+        setFlipped(prev => [...prev, id]);
+    };
+
+    const markAsSolved = (first: number, second: number) => {
+        setSolved(prev => [...prev, first, second]);
+        setFlipped([]);
+    };
+
+    const incrementMoves = () => {
+        setMoves(prev => prev + 1);
     };
 
     const resetGame = () => {
@@ -66,5 +69,16 @@ export function useGameLogic(emojis: string[], flipSpeed: number = 1000) {
 
     const isWon = solved.length === cards.length && cards.length > 0;
 
-    return { cards, flipped, solved, moves, time, handleClick, isWon, resetGame };
+    return {
+        cards,
+        flipped,
+        solved,
+        moves,
+        time,
+        flipCard,
+        markAsSolved,
+        incrementMoves,
+        isWon,
+        resetGame
+    };
 }

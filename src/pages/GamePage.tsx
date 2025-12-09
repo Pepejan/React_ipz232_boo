@@ -12,7 +12,19 @@ interface GamePageProps {
 }
 
 export default function GamePage({ onFinish, emojis, flipSpeed, onBackToSettings }: GamePageProps) {
-    const { cards, flipped, solved, moves, time, handleClick, isWon, resetGame } = useGameLogic(emojis, flipSpeed);
+    const {
+        cards,
+        flipped,
+        solved,
+        moves,
+        time,
+        flipCard,
+        markAsSolved,
+        incrementMoves,
+        isWon,
+        resetGame
+    } = useGameLogic(emojis, flipSpeed);
+
     const [showWinModal, setShowWinModal] = useState(false);
 
     useEffect(() => {
@@ -23,6 +35,30 @@ export default function GamePage({ onFinish, emojis, flipSpeed, onBackToSettings
             }, 500);
         }
     }, [isWon, moves, onFinish]);
+
+    const handleCardClick = (id: number) => {
+        if (flipped.length === 2) {
+            return;
+        }
+
+        if (flipped.includes(id) || solved.includes(id)) {
+            return;
+        }
+
+        flipCard(id);
+
+        if (flipped.length === 1) {
+            incrementMoves();
+
+            const firstCardId = flipped[0];
+            const firstCard = cards[firstCardId];
+            const secondCard = cards[id];
+
+            if (firstCard.emoji === secondCard.emoji) {
+                markAsSolved(firstCardId, id);
+            }
+        }
+    };
 
     const handlePlayAgain = () => {
         resetGame();
@@ -45,7 +81,7 @@ export default function GamePage({ onFinish, emojis, flipSpeed, onBackToSettings
                 cards={cards}
                 flipped={flipped}
                 solved={solved}
-                onCardClick={handleClick}
+                onCardClick={handleCardClick}
             />
             <button className="btn btn-settings" onClick={onBackToSettings}>
                 ⚙️ Settings
