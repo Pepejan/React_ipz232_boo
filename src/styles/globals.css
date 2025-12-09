@@ -67,3 +67,17 @@ body {
 .difficulty-selector {
     margin: 2rem 0;
 }
+.game-info {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.game-info .text {
+    margin: 0.5rem;
+    background: #f8f9fa;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+}
