@@ -1,14 +1,12 @@
 import { createContext, useContext } from "react";
 
 export interface GameSettings {
-    difficulty: "easy" | "medium" | "hard";
     pairsCount: number;
     flipSpeed: number;
     theme: "animals" | "food" | "nature";
 }
 
 export const defaultSettings: GameSettings = {
-    difficulty: "medium",
     pairsCount: 6,
     flipSpeed: 1000,
     theme: "animals"

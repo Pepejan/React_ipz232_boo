@@ -9,10 +9,6 @@ interface SettingsFormProps {
 }
 
 const schema: yup.ObjectSchema<GameSettings> = yup.object({
-    difficulty: yup
-        .mixed<"easy" | "medium" | "hard">()
-        .oneOf(["easy", "medium", "hard"])
-        .required("Difficulty is required"),
     pairsCount: yup
         .number()
         .required("Number of pairs is required")

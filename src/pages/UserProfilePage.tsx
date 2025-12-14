@@ -7,6 +7,7 @@ interface GameResult {
     id: number;
     moves: number;
     time: number;
+    pairsCount?: number;
     date: string;
 }
 
@@ -15,6 +16,13 @@ export default function UserProfilePage() {
     const navigate = useNavigate();
     const [games, setGames] = useState<GameResult[]>([]);
     const [userName, setUserName] = useState("");
+
+    const getDifficulty = (pairsCount?: number) => {
+        if (!pairsCount) return "N/A";
+        if (pairsCount <= 4) return "🟢 Easy";
+        if (pairsCount <= 8) return "🟡 Medium";
+        return "🔴 Hard";
+    };
 
     useEffect(() => {
         if (userId) {
@@ -102,6 +110,7 @@ export default function UserProfilePage() {
                                         {new Date(game.date).toLocaleDateString()}
                                     </div>
                                     <div className={styles.gameStats}>
+                                        <span>{getDifficulty(game.pairsCount)}</span>
                                         <span>🎯 {game.moves} moves</span>
                                         <span>⏱️ {game.time}s</span>
                                     </div>

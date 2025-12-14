@@ -49,6 +49,7 @@ export default function GamePage({ emojis, flipSpeed, onFinish, onBackToSettings
             id: Date.now(),
             moves: finalMoves,
             time: finalTime,
+            pairsCount: emojis.length,
             date: new Date().toISOString()
         });
         localStorage.setItem(`user_${userId}_games`, JSON.stringify(games));
