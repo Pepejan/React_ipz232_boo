@@ -1,0 +1,37 @@
+.startPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    background-color: #f4f5f7;
+}
+
+.welcomeText {
+    color: #222;
+    font-size: 16px;
+    text-align: center;
+    margin: 16px 0;
+    font-weight: 500;
+    max-width: 500px;
+}
+
+.profileButton {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #222;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background 0.2s ease;
+}
+
+.profileButton:hover {
+    background: #f0f0f0;
+    transform: none;
+    box-shadow: none;
+}

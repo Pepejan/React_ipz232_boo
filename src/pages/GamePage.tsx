@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Grid from "../components/Grid";
 import WinModal from "../components/WinModal";
 import { useGameLogic } from "../hooks/useGameLogic";
+import styles from "../styles/GamePage.module.css";
 
 interface GamePageProps {
-    onFinish: (moves: number) => void;
     emojis: string[];
     flipSpeed: number;
-    onBackToSettings: () => void;
+    onFinish?: (moves: number) => void;
+    onBackToSettings?: () => void;
 }
 
-export default function GamePage({ onFinish, emojis, flipSpeed, onBackToSettings }: GamePageProps) {
+export default function GamePage({ emojis, flipSpeed, onFinish, onBackToSettings }: GamePageProps) {
+    const navigate = useNavigate();
     const {
         cards,
         flipped,
@@ -31,17 +34,28 @@ export default function GamePage({ onFinish, emojis, flipSpeed, onBackToSettings
         if (isWon) {
             setTimeout(() => {
                 setShowWinModal(true);
-                onFinish(moves);
+                saveGameResult(moves, time);
+                if (onFinish) {
+                    onFinish(moves);
+                }
             }, 500);
         }
-    }, [isWon, moves, onFinish]);
+    }, [isWon, moves, time, onFinish]);
+
+    const saveGameResult = (finalMoves: number, finalTime: number) => {
+        const userId = localStorage.getItem("currentUserId") || "1";
+        const games = JSON.parse(localStorage.getItem(`user_${userId}_games`) || "[]");
+        games.push({
+            id: Date.now(),
+            moves: finalMoves,
+            time: finalTime,
+            date: new Date().toISOString()
+        });
+        localStorage.setItem(`user_${userId}_games`, JSON.stringify(games));
+    };
 
     const handleCardClick = (id: number) => {
-        if (flipped.length === 2) {
-            return;
-        }
-
-        if (flipped.includes(id) || solved.includes(id)) {
+        if (flipped.length === 2 || flipped.includes(id) || solved.includes(id)) {
             return;
         }
 
@@ -49,7 +63,6 @@ export default function GamePage({ onFinish, emojis, flipSpeed, onBackToSettings
 
         if (flipped.length === 1) {
             incrementMoves();
-
             const firstCardId = flipped[0];
             const firstCard = cards[firstCardId];
             const secondCard = cards[id];
@@ -67,15 +80,33 @@ export default function GamePage({ onFinish, emojis, flipSpeed, onBackToSettings
 
     const handleNewGame = () => {
         setShowWinModal(false);
-        onBackToSettings();
+        if (onBackToSettings) {
+            onBackToSettings();
+        } else {
+            navigate("/");
+        }
+    };
+
+    const handleBackToSettings = () => {
+        if (onBackToSettings) {
+            onBackToSettings();
+        } else {
+            navigate("/");
+        }
     };
 
     return (
-        <div className="page">
+        <div className={styles.gamePage}>
             <Header title="🎮 Game Time!" />
-            <div className="game-info">
-                <p className="text">⏱️ Time: {time}s</p>
-                <p className="text">🎯 Moves: {moves}</p>
+            <div className={styles.gameInfo}>
+                <div className={styles.statCard}>
+                    <span className={styles.statIcon}>⏱️</span>
+                    <span className={styles.statValue}>{time}s</span>
+                </div>
+                <div className={styles.statCard}>
+                    <span className={styles.statIcon}>🎯</span>
+                    <span className={styles.statValue}>{moves}</span>
+                </div>
             </div>
             <Grid
                 cards={cards}
@@ -83,7 +114,10 @@ export default function GamePage({ onFinish, emojis, flipSpeed, onBackToSettings
                 solved={solved}
                 onCardClick={handleCardClick}
             />
-            <button className="btn btn-settings" onClick={onBackToSettings}>
+            <button
+                className={styles.settingsButton}
+                onClick={handleBackToSettings}
+            >
                 ⚙️ Settings
             </button>
 

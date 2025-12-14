@@ -1,41 +1,20 @@
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
 }
 
 .modal-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 20px;
-    max-width: 500px;
+    background: #fff;
+    padding: 24px;
     width: 90%;
-    animation: slideUp 0.3s;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    max-width: 420px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
 }
 
 .win-modal {
@@ -43,61 +22,72 @@
 }
 
 .win-title {
-    color: #333;
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #222;
 }
 
 .win-text {
-    color: #666;
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 20px;
 }
 
 .win-stats {
     display: flex;
-    gap: 2rem;
-    justify-content: center;
-    margin-bottom: 2rem;
+    justify-content: space-between;
+    margin-bottom: 24px;
 }
 
 .win-stat-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
 }
 
 .win-stat-label {
-    color: #999;
-    font-size: 0.9rem;
+    font-size: 12px;
+    color: #777;
+    margin-bottom: 4px;
 }
 
 .win-stat-value {
-    color: #129500;
-    font-size: 2rem;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 600;
+    color: #222;
 }
 
 .win-modal-buttons {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    gap: 8px;
+}
+
+.btn-primary,
+.btn-secondary {
+    flex: 1;
+    padding: 10px 0;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: #fff;
 }
 
 .btn-primary {
-    background-color: #129500;
-    color: white;
+    border-color: #888;
+    font-weight: 600;
 }
 
-.btn-primary:hover {
-    background-color: #59e640;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
+.btn-primary:hover,
 .btn-secondary:hover {
-    background-color: #5a6268;
+    background: #f2f2f2;
+}
+
+@media (max-width: 480px) {
+    .win-stats {
+        flex-direction: column;
+        gap: 8px;
+    }
 }
