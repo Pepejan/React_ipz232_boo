@@ -1,21 +1,31 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Header from "../components/Header";
+import { useUserStore } from "../store";
 import styles from "../styles/UserProfilePage.module.css";
 
-interface GameResult {
-    id: number;
-    moves: number;
-    time: number;
-    pairsCount?: number;
-    date: string;
-}
-
 export default function UserProfilePage() {
-    const { userId } = useParams<{ userId: string }>();
+    const { userId: paramUserId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
-    const [games, setGames] = useState<GameResult[]>([]);
-    const [userName, setUserName] = useState("");
+
+    const {
+        userId,
+        userName,
+        games,
+        setUserId,
+        setUserName,
+        loadUserData,
+        getBestScore,
+        getAverageScore,
+        getTotalGames,
+    } = useUserStore();
+
+    useEffect(() => {
+        if (paramUserId && paramUserId !== userId) {
+            setUserId(paramUserId);
+            loadUserData(paramUserId);
+        }
+    }, [paramUserId]);
 
     const getDifficulty = (pairsCount?: number) => {
         if (!pairsCount) return "N/A";
@@ -24,40 +34,16 @@ export default function UserProfilePage() {
         return "🔴 Hard";
     };
 
-    useEffect(() => {
-        if (userId) {
-            localStorage.setItem("currentUserId", userId);
-            const savedGames = JSON.parse(
-                localStorage.getItem(`user_${userId}_games`) || "[]"
-            );
-            setGames(savedGames.reverse());
-
-            const savedName = localStorage.getItem(`user_${userId}_name`);
-            setUserName(savedName || `Player ${userId}`);
-        }
-    }, [userId]);
-
     const handleNameChange = (newName: string) => {
-        if (userId && newName.trim()) {
+        if (newName.trim()) {
             setUserName(newName);
             localStorage.setItem(`user_${userId}_name`, newName);
         }
     };
 
-    const getBestScore = () => {
-        if (games.length === 0) return null;
-        return games.reduce((best, game) =>
-            game.moves < best.moves ? game : best
-        );
-    };
-
-    const getAverageScore = () => {
-        if (games.length === 0) return 0;
-        const total = games.reduce((sum, game) => sum + game.moves, 0);
-        return Math.round(total / games.length);
-    };
-
     const bestScore = getBestScore();
+    const averageScore = getAverageScore();
+    const totalGames = getTotalGames();
 
     return (
         <div className={styles.profilePage}>
@@ -83,7 +69,7 @@ export default function UserProfilePage() {
                     <div className={styles.statsGrid}>
                         <div className={styles.statItem}>
                             <span className={styles.statLabel}>Total Games</span>
-                            <span className={styles.statNumber}>{games.length}</span>
+                            <span className={styles.statNumber}>{totalGames}</span>
                         </div>
                         <div className={styles.statItem}>
                             <span className={styles.statLabel}>Best Score</span>
@@ -93,7 +79,7 @@ export default function UserProfilePage() {
                         </div>
                         <div className={styles.statItem}>
                             <span className={styles.statLabel}>Average Moves</span>
-                            <span className={styles.statNumber}>{getAverageScore()}</span>
+                            <span className={styles.statNumber}>{averageScore}</span>
                         </div>
                     </div>
                 </div>

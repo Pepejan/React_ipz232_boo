@@ -3,97 +3,100 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Grid from "../components/Grid";
 import WinModal from "../components/WinModal";
-import { useGameLogic } from "../hooks/useGameLogic";
+import { useGameStore, useUserStore } from "../store";
 import styles from "../styles/GamePage.module.css";
 
 interface GamePageProps {
     emojis: string[];
     flipSpeed: number;
-    onFinish?: (moves: number) => void;
-    onBackToSettings?: () => void;
 }
 
-export default function GamePage({ emojis, flipSpeed, onFinish, onBackToSettings }: GamePageProps) {
+export default function GamePage({ emojis, flipSpeed }: GamePageProps) {
     const navigate = useNavigate();
+    const [showWinModal, setShowWinModal] = useState(false);
+
     const {
         cards,
         flipped,
         solved,
         moves,
         time,
+        initializeGame,
         flipCard,
+        unflipCards,
         markAsSolved,
         incrementMoves,
-        isWon,
-        resetGame
-    } = useGameLogic(emojis, flipSpeed);
+        incrementTime,
+        resetGame,
+        setGameActive,
+    } = useGameStore();
 
-    const [showWinModal, setShowWinModal] = useState(false);
+    const { addGameResult } = useUserStore();
 
     useEffect(() => {
-        if (isWon) {
+        initializeGame(emojis);
+        setShowWinModal(false);
+        return () => setGameActive(false);
+    }, [emojis]);
+
+    useEffect(() => {
+        if (cards.length > 0 && solved.length < cards.length && !showWinModal) {
+            const timer = setInterval(incrementTime, 1000);
+            return () => clearInterval(timer);
+        }
+    }, [cards, solved, showWinModal]);
+
+    useEffect(() => {
+        if (flipped.length === 2) {
+            const [first, second] = flipped;
+            if (cards[first]?.emoji === cards[second]?.emoji) {
+                markAsSolved(first, second);
+            } else {
+                const timeout = setTimeout(unflipCards, flipSpeed);
+                return () => clearTimeout(timeout);
+            }
+        }
+    }, [flipped, cards, flipSpeed]);
+
+    useEffect(() => {
+        if (solved.length === cards.length && cards.length > 0 && !showWinModal) {
             setTimeout(() => {
                 setShowWinModal(true);
-                saveGameResult(moves, time);
-                if (onFinish) {
-                    onFinish(moves);
-                }
+                setGameActive(false);
+
+                addGameResult({
+                    moves,
+                    time,
+                    pairsCount: emojis.length,
+                });
             }, 500);
         }
-    }, [isWon, moves, time, onFinish]);
-
-    const saveGameResult = (finalMoves: number, finalTime: number) => {
-        const userId = localStorage.getItem("currentUserId") || "1";
-        const games = JSON.parse(localStorage.getItem(`user_${userId}_games`) || "[]");
-        games.push({
-            id: Date.now(),
-            moves: finalMoves,
-            time: finalTime,
-            pairsCount: emojis.length,
-            date: new Date().toISOString()
-        });
-        localStorage.setItem(`user_${userId}_games`, JSON.stringify(games));
-    };
+    }, [solved, cards, showWinModal]);
 
     const handleCardClick = (id: number) => {
         if (flipped.length === 2 || flipped.includes(id) || solved.includes(id)) {
             return;
         }
 
+        if (moves === 0 && flipped.length === 0) {
+            setGameActive(true);
+        }
+
         flipCard(id);
 
         if (flipped.length === 1) {
             incrementMoves();
-            const firstCardId = flipped[0];
-            const firstCard = cards[firstCardId];
-            const secondCard = cards[id];
-
-            if (firstCard.emoji === secondCard.emoji) {
-                markAsSolved(firstCardId, id);
-            }
         }
     };
 
     const handlePlayAgain = () => {
-        resetGame();
+        resetGame(emojis);
         setShowWinModal(false);
     };
 
     const handleNewGame = () => {
         setShowWinModal(false);
-        if (onBackToSettings) {
-            onBackToSettings();
-        } else {
-            navigate("/");
-        }
-    };
-
-    const handleBackToSettings = () => {
-        if (onBackToSettings) {
-            onBackToSettings();
-        } else {
-            navigate("/");
-        }
+        navigate("/");
     };
 
     return (
@@ -117,7 +120,7 @@ export default function GamePage({ emojis, flipSpeed, onFinish, onBackToSettings
             />
             <button
                 className={styles.settingsButton}
-                onClick={handleBackToSettings}
+                onClick={() => navigate("/")}
             >
                 ⚙️ Settings
             </button>
