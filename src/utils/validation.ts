@@ -1,4 +1,4 @@
-import type {GameSettings} from "../contexts/GameSettingsContext.tsx";
+import type {GameSettings} from "../store";
 
 export interface ValidationErrors {
     pairsCount?: string;

@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import type { GameSettings } from "../contexts/GameSettingsContext";
+import type { GameSettings } from "../store";
 
 interface SettingsFormProps {
     onSubmit: (settings: GameSettings) => void;
