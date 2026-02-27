@@ -149,6 +149,6 @@ This project is licensed under the **MIT License** — see the [LICENSE](./LICEN
 ## 🔗 Links
 
 - [Privacy Policy](./PRIVACY_POLICY.md)
-- [License Report](./license-report.md)
-- [Storybook](./storybook-static/index.html) *(after build)*
+- [License Report](./license-report.txt)
+- [Storybook](http://localhost:6006) (after`npm run storybook`) 
 - [API Documentation](./docs/index.html) *(after `npm run docs`)*
