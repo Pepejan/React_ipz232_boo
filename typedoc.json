@@ -1,0 +1,8 @@
+{
+  "entryPointStrategy": "expand",
+  "entryPoints": ["src/components", "src/store", "src/pages"],
+  "exclude": ["src/stories/**"],
+  "out": "docs",
+  "name": "Emoji Match Game",
+  "readme": "README_DOC.md"
+}

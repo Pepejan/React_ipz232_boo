@@ -7,6 +7,8 @@ import { emojiThemes } from "./constants/emojiThemes";
 import "./styles/globals.css";
 import "./styles/modal.css";
 import "./styles/settings.css";
+import CookieBanner from "./components/CookieBanner";
+
 
 function App() {
     const { settings } = useSettingsStore();
@@ -29,6 +31,7 @@ function App() {
                     <Route path="/user/:userId" element={<UserProfilePage />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
+                <CookieBanner />  {}
             </div>
         </BrowserRouter>
     );
