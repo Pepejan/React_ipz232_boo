@@ -1,10 +1,19 @@
+/**
+ * @module SettingsForm
+ * @category Components
+ */
+
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import type { GameSettings } from "../store";
 
+/**
+ * Props for the {@link SettingsForm} component.
+ */
 interface SettingsFormProps {
     onSubmit: (settings: GameSettings) => void;
+
     initialSettings: GameSettings;
 }
 
@@ -26,6 +35,30 @@ const schema: yup.ObjectSchema<GameSettings> = yup.object({
         .required("Theme is required")
 }).required();
 
+/**
+ * A validated form for configuring game settings before starting a game.
+ *
+ * Uses `react-hook-form` for form state management and `yup` for schema
+ * validation. Displays inline error messages for invalid fields.
+ *
+ * **Fields:**
+ * - `pairsCount` — number of emoji pairs (3–12)
+ * - `flipSpeed` — delay before unmatched cards flip back (500–3000 ms)
+ * - `theme` — emoji set: `animals`, `food`, or `nature`
+ *
+ * @param props - {@link SettingsFormProps}
+ *
+ * @example
+ * ```tsx
+ * <SettingsForm
+ *   initialSettings={settings}
+ *   onSubmit={(newSettings) => {
+ *     updateSettings(newSettings);
+ *     navigate("/game");
+ *   }}
+ * />
+ * ```
+ */
 export default function SettingsForm({ onSubmit, initialSettings }: SettingsFormProps) {
     const {
         register,

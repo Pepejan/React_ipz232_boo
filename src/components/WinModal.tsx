@@ -1,14 +1,49 @@
+/**
+ * @module WinModal
+ * @category Components
+ */
+
 import Modal from "./Modal";
 
+/**
+ * Props for the {@link WinModal} component.
+ */
 interface WinModalProps {
     isOpen: boolean;
+
     onClose: () => void;
+
     moves: number;
+
     time: number;
+
     onPlayAgain: () => void;
+
     onNewGame: () => void;
 }
 
+/**
+ * Completion dialog shown after all card pairs have been matched.
+ *
+ * Displays the player's final stats (moves and time) and provides
+ * two action buttons: **Play Again** and **New Game**.
+ *
+ * Built on top of the generic {@link Modal} component.
+ *
+ * @param props - {@link WinModalProps}
+ *
+ * @example
+ * ```tsx
+ * <WinModal
+ *   isOpen={showWinModal}
+ *   onClose={() => setShowWinModal(false)}
+ *   moves={moves}
+ *   time={time}
+ *   onPlayAgain={handlePlayAgain}
+ *   onNewGame={handleNewGame}
+ * />
+ * ```
+ */
 export default function WinModal({ isOpen, onClose, moves, time, onPlayAgain, onNewGame }: WinModalProps) {
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
