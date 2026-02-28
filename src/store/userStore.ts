@@ -1,6 +1,14 @@
+/**
+ * @module userStore
+ * @category Store
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+/**
+ * A single completed game result saved to the player's history.
+ */
 export interface GameResult {
     id: number;
     moves: number;
@@ -9,24 +17,70 @@ export interface GameResult {
     date: string;
 }
 
+/**
+ * Shape of the user store state and actions.
+ */
 interface UserState {
     userId: string;
     userName: string;
     games: GameResult[];
 
-    // Actions
+    /**
+     * Sets the active user ID and loads their saved data.
+     * @param id - The user ID to switch to.
+     */
     setUserId: (id: string) => void;
+
+    /**
+     * Updates the player's display name.
+     * @param name - The new display name.
+     */
     setUserName: (name: string) => void;
+
+    /**
+     * Adds a new game result to the top of the history array.
+     * Automatically assigns `id` (timestamp) and `date` (ISO string).
+     * @param result - Game data without `id` and `date`.
+     */
     addGameResult: (result: Omit<GameResult, 'id' | 'date'>) => void;
+
+    /**
+     * Loads a user's name and game history from `localStorage`.
+     * @param userId - The user ID whose data should be loaded.
+     */
     loadUserData: (userId: string) => void;
+
+    /** Empties the current user's game history array. */
     clearGameHistory: () => void;
 
-    // Computed values
+    /**
+     * Returns the game with the fewest moves, or `null` if no games exist.
+     */
     getBestScore: () => GameResult | null;
+
+    /**
+     * Returns the average number of moves across all games, rounded to nearest integer.
+     * Returns `0` if no games exist.
+     */
     getAverageScore: () => number;
+
+    /** Returns the total number of completed games. */
     getTotalGames: () => number;
 }
 
+/**
+ * Zustand store for the player profile and game history.
+ *
+ * Persisted to `localStorage` under the key `emoji-match-user`.
+ * Also mirrors per-user data under `user_<id>_games` and `user_<id>_name`
+ * keys to support multi-user profile switching.
+ *
+ * @example
+ * ```ts
+ * const { userName, games, addGameResult } = useUserStore();
+ * addGameResult({ moves: 14, time: 42, pairsCount: 6 });
+ * ```
+ */
 export const useUserStore = create<UserState>()(
     persist(
         (set, get) => ({
@@ -56,7 +110,6 @@ export const useUserStore = create<UserState>()(
             },
 
             loadUserData: (userId: string) => {
-                // Завантаження даних з localStorage для конкретного користувача
                 const savedGames = localStorage.getItem(`user_${userId}_games`);
                 const savedName = localStorage.getItem(`user_${userId}_name`);
 
@@ -69,7 +122,6 @@ export const useUserStore = create<UserState>()(
 
             clearGameHistory: () => set({ games: [] }),
 
-            // Computed values
             getBestScore: () => {
                 const { games } = get();
                 if (games.length === 0) return null;
@@ -89,7 +141,6 @@ export const useUserStore = create<UserState>()(
         }),
         {
             name: 'emoji-match-user',
-            // Зберігаємо дані також в localStorage для кожного користувача
             onRehydrateStorage: () => (state) => {
                 if (state) {
                     const { userId, games, userName } = state;
