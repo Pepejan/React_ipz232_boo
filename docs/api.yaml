@@ -1,0 +1,220 @@
+openapi: 3.0.3
+info:
+  title: Emoji Match API
+  description: >
+    API для Emoji Match. Поточна версія проєкту повністю клієнтська —
+    дані в localStorage. Цей документ описує ендпоінти, які з'явились би
+    при додаванні сервера (глобальний рейтинг, синхронізація між пристроями).
+  version: 1.0.0
+
+servers:
+  - url: https://api.emojimatch.example.com/v1
+    description: Production
+  - url: http://localhost:3000/v1
+    description: Local
+
+tags:
+  - name: scores
+    description: Результати ігор
+
+paths:
+  /users/{userId}/scores:
+    get:
+      tags:
+        - scores
+      summary: Список результатів гравця
+      description: >
+        Повертає завершені ігри для вказаного userId.
+        Сортування — від нових до старих. Є пагінація.
+      operationId: getUserScores
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID гравця
+          schema:
+            type: string
+            example: "1"
+        - name: limit
+          in: query
+          required: false
+          description: Записів на сторінку (за замовчуванням 20, макс 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          required: false
+          description: Зміщення для пагінації
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: Успішно
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Загальна кількість ігор
+                    example: 42
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GameResult"
+              example:
+                total: 42
+                items:
+                  - id: 1714732800000
+                    moves: 14
+                    time: 38
+                    pairsCount: 6
+                    date: "2026-05-03T10:00:00.000Z"
+                  - id: 1714729200000
+                    moves: 22
+                    time: 61
+                    pairsCount: 8
+                    date: "2026-05-03T09:00:00.000Z"
+        "404":
+          description: Гравець не знайдений
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 404
+                message: "User not found"
+
+    post:
+      tags:
+        - scores
+      summary: Зберегти результат гри
+      description: >
+        Записує результат завершеної партії. Викликається після того як
+        гравець закрив WinModal і підтвердив збереження.
+      operationId: saveGameScore
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID гравця
+          schema:
+            type: string
+            example: "1"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GameResultInput"
+            example:
+              moves: 14
+              time: 38
+              pairsCount: 6
+      responses:
+        "201":
+          description: Збережено
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameResult"
+              example:
+                id: 1714732800000
+                moves: 14
+                time: 38
+                pairsCount: 6
+                date: "2026-05-03T10:00:00.000Z"
+        "400":
+          description: Некоректні дані
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 400
+                message: "moves must be a positive integer"
+        "404":
+          description: Гравець не знайдений
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 404
+                message: "User not found"
+
+components:
+  schemas:
+    GameResult:
+      type: object
+      required:
+        - id
+        - moves
+        - time
+        - pairsCount
+        - date
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unix timestamp (мс) — використовується як ID
+          example: 1714732800000
+        moves:
+          type: integer
+          minimum: 1
+          description: Кількість ходів
+          example: 14
+        time:
+          type: integer
+          minimum: 0
+          description: Час гри в секундах
+          example: 38
+        pairsCount:
+          type: integer
+          minimum: 3
+          maximum: 12
+          description: Кількість пар на полі
+          example: 6
+        date:
+          type: string
+          format: date-time
+          description: Час завершення (ISO 8601)
+          example: "2026-05-03T10:00:00.000Z"
+
+    GameResultInput:
+      type: object
+      description: Те що клієнт надсилає — без id і date, їх генерує сервер
+      required:
+        - moves
+        - time
+        - pairsCount
+      properties:
+        moves:
+          type: integer
+          minimum: 1
+          example: 14
+        time:
+          type: integer
+          minimum: 0
+          example: 38
+        pairsCount:
+          type: integer
+          minimum: 3
+          maximum: 12
+          example: 6
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: "User not found"
